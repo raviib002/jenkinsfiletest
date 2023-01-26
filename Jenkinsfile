@@ -60,8 +60,25 @@ pipeline {
         }
         stage('Testing activity') {
             steps {
-                script {
+                step {
+                    script {
                     echo "Testing activity step 1"
+                    }
+                }
+                step {
+                    script {
+                    echo "Testing activity step 2"                
+                    }
+                }
+                step {
+                    script {
+                    echo "Testing activity step 3"                
+                    }
+                }
+                step {
+                    script {
+                    echo "Testing activity step 4"
+                    }
                 }
             }
          }
