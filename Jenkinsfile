@@ -52,36 +52,36 @@ pipeline {
             }
         }
         stage('Package') {
-            steps{
+            steps {
                 script {
                     echo "Package is 5"
                 }
             }
         }
         stage('Testing activity') {
-            steps{
+            steps {
                 script {
                     echo "Testing activity step 1"
                 }
             }
-            steps{
+            steps {
                 script {
                     echo "Testing activity step 2"                
                     }
             }
-            steps{
+            steps {
                 script {
                     echo "Testing activity step 3"                
                     }
             }
-            steps{
+            steps {
                 script {
                     echo "Testing activity step 4"
                 }
             }
         }
         stage('Exctracting and excluding') {
-            steps{
+            steps {
                 script {
                     if (1 == 1) {
                     echo "Exctracting and excluding is 1"
@@ -90,7 +90,7 @@ pipeline {
                     }
                 }
             }
-            steps{
+            steps {
                 script {
                     echo "Exctracting and excluding is 2"
                 }
