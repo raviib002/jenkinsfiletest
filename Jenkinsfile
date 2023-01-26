@@ -1,15 +1,7 @@
 pipeline {
     //agent { label 'devops' }
     environment {
-        NEXUS_URL = 'https://nexus.cfrm.dev.local/repository'
-        NEXUS_CREDS = credentials('nexus-creds')
-        GIT_CREDS = credentials('CFRMGit-jenkins-svc')
-        //#########################//
-        INSTALLATION_PATH = '/home/deployment_scripts'
-        SED_VAR = '        <Valve className="com.intellinx.authenticators.TenantIdMergedToUserNameValve" landingPage="/" disableProxyCaching="false" /> \n </Context>'
-        SED_VAR1 = 'cloud.new_user.concatenate_tenant_automatically=true'
-        IC_FOLDER = '/opt/ic'
-        HOST_NAME = 'IL02VLDEVOPS5001.cfrm.dev.local'
+
     }
 
     stages {
