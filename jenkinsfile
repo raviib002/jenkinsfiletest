@@ -1,33 +1,5 @@
-properties([
-    parameters([
-           [
-            $class: 'ParameterSeparatorDefinition',
-            name: 'BUILD_HEADER',
-            sectionHeader: 'Package details'
-           ],
-           string(name: 'VERSION', description: 'Version of IC package (i.e 6.7.0)'),
-           string(name: 'RELEASE', description: 'Release version of IC package (i.e GA)'),
-           [
-            $class: 'ParameterSeparatorDefinition',
-            name: 'BUILD_HEADER',
-            sectionHeader: 'Database Details'
-           ],
-           choice(name: 'RHEL_VER', choices: ['7', '8'], description: 'RHEL Version'),
-           //choice(name: 'RELEASE', choices: ['GA', 'SP1'], description: 'The commercial DB provider'),
-           choice(name: 'DB_TYPE', choices: ['oracle', 'postgres'], description: 'The commercial DB provider'),
-           booleanParam(name: 'DEPLOY_TO_NEXUS', defaultValue: false, description: 'Should the package be released and uploaded to Nexus'),
-           [
-            $class: 'ParameterSeparatorDefinition',
-            name: 'BUILD_HEADER',
-            sectionHeader: 'Cleanup Parameters'
-           ],
-           booleanParam(name: "CLEAN_WORKSPACE_AFTER_BUILD", defaultValue: true, description: 'Delete workspace after build'),
-       ]
-    )
-])
-
 pipeline {
-    agent { label 'devops' }
+    //agent { label 'devops' }
     environment {
         NEXUS_URL = 'https://nexus.cfrm.dev.local/repository'
         NEXUS_CREDS = credentials('nexus-creds')
@@ -39,34 +11,17 @@ pipeline {
         IC_FOLDER = '/opt/ic'
         HOST_NAME = 'IL02VLDEVOPS5001.cfrm.dev.local'
     }
-    options {
-        disableConcurrentBuilds()
-        timeout(time: 10, unit: 'MINUTES')
-        buildDiscarder(logRotator(numToKeepStr: '4', daysToKeepStr: '30', artifactDaysToKeepStr: '30', artifactNumToKeepStr: '4'))
-    }
-
-    triggers {
-        pollSCM("H/10 * * * *")
-    }
-
 
     stages {
         stage('Read Config File') {
             steps {
                 script {
-                    artifacts = readYaml(file: 'artifacts.yaml')
-                    for (artifact in artifacts) {
-                        if(artifact.cfrm_release_artifact){
-                            artifact.nexus_path = sh(script: "echo '${artifact.nexus_path}' | sed 's/{release}/${params.RELEASE}/g'",
-                                             returnStdout: true).trim()
-
-                            artifact.nexus_path = sh(script: "echo '${artifact.nexus_path}' | sed 's/{version}/${params.VERSION}/g'",
-                                             returnStdout: true).trim()
+                        if(1 == 1){
+                        echo "read config file is 1"    
                         }
-                        else{
-                            artifact.nexus_path = sh(script: "echo '${artifact.nexus_path}' | sed 's/{version}/${artifact.version}/g'",
-                                             returnStdout: true).trim()
-                        }
+                        else
+                        {
+                        echo "read config file is not 1"
                     }
                 }
             }
@@ -74,214 +29,87 @@ pipeline {
         stage('Download Artifacts') {
             steps {
                 script {
-                    for (artifact in artifacts) {
-                        artifact.nexus_path= sh(script: 'wget -q -P ./artifacts --user $NEXUS_CREDS_USR --password $NEXUS_CREDS_PSW $NEXUS_URL/'+artifact.nexus_path,
-                        returnStdout: true).trim()
-                        if (artifact.name.equals("CFRMInvestigationCenter-official-installation-script"))
-                        {
-                            // copy official installation script to scripts directory
-                            sh("cp ./artifacts/InstallCFRMInvestigationCenter.sh ./scripts/")
-                        }
-                        else if (artifact.name.equals("banking-solutions-itxp"))
-                        {
-                            dir("artifacts") {
-                                // extract itxp file from tar and remove tar
-                                sh("tar --wildcards --no-anchored \"*.itxp\" --transform \"s/banking-solutions-.*.itxp/banking-solutions.itxp/\" -xvf banking-solutions.tar && rm -f banking-solutions.tar")
-                            }
-                        }
+                    if (2 == 2)
+                    {
+                    echo "Download Artifacts is 2"
                     }
-                    sh("echo artifacts: ")
-                    sh("ls ./artifacts")
+                    else if (3 == 3)
+                    {
+                    echo "Download Artifacts is 3"
+                    }
                 }
             }
         }
+        
         stage('Generate DB Scripts') {
             steps {
                 script {
-                    versions = readYaml(file: 'versions_to_build_numbers.yaml')
-                    for( version in versions ){
-                        if(version.version == params.VERSION)
-                        {
-                            buildNumber=version."${RELEASE}"
-                        }
+                    if (4 == 4)
+                    {
+                    echo "Generate DB Scripts is 4"
                     }
-                    sh('''if [ -d "devops-cfrm-download" ]; then rm -Rf devops-cfrm-download; fi &&
-                    git clone --depth 1 https://$GIT_CREDS_USR:$GIT_CREDS_PSW@bitbucket.bottomline.tech/scm/cfrm_devops/devops-cfrm-download.git &&
-                    rm -rf db_scripts/vanilla/*''') 
-                    sh("cd devops-cfrm-download && sed -i 's/solution.version=.*/solution.version=${VERSION}/g' build.properties && \
-                    sed -i 's/#solution.build=.*/solution.build=${buildNumber}/g' build.properties")
-                    sh('''cd devops-cfrm-download && ant download && ant recreate-schema -Dnamespace=cfrm-dev-local/${DB_TYPE} && ant export-sql -Dnamespace=cfrm-dev-local/${DB_TYPE} && ant -v run-sql -Dnamespace=cfrm-dev-local/${DB_TYPE}
-                    mkdir -p ../db_scripts/vanilla/ && cp -r downloads/sql/cfrm-dev-local/${DB_TYPE} ../db_scripts/vanilla/''')
                 }
             }
         }
         stage('Package') {
             steps{
                 script {
-                    sh("sed -i 's/{{VERSION}}/${params.VERSION}/g' docs/package_installation_manual.txt && sed -i 's/{{RELEASE}}/${params.RELEASE}/g' docs/package_installation_manual.txt")
-                    sh("tar --exclude='.git' --exclude='artifacts@tmp' --exclude='devops-cfrm-download' --exclude='Jenkinsfile' --exclude='versions_to_build_numbers.yaml' --exclude='artifacts.yaml' -zcvf ${VERSION}_${RELEASE}.tar.gz *")
-                    stash includes: '${VERSION}_${RELEASE}.tar.gz', name: '${VERSION}_${RELEASE}.tar.gz'
+                    echo "Package is 5"
                 }
             }
         }
-        stage('Testing activity on test_devops agent') {
-            agent { 
-                label 'test_devops'
+        stage('Testing activity') {
+            steps{
+                script {
+                    echo "Testing activity step 1"
+                }
             }
             steps{
                 script {
-                    unstash '${VERSION}_${RELEASE}.tar.gz'
-                    sh('mkdir -p $INSTALLATION_PATH')
-                    //sh('mv ${VERSION}_${RELEASE}.tar.gz $INSTALLATION_PATH/')
-                    sh('tar -xvzf ${VERSION}_${RELEASE}.tar.gz -C $INSTALLATION_PATH')
-                }
+                    echo "Testing activity step 2"                
+                    }
             }
-        }
-        stage('Testing activity 2nd stage') {
-            agent { 
-                label 'test_devops'
-            }
-            steps('copying tar.gz file to the another agent to test') {
-                script {
-                    unstash '${VERSION}_${RELEASE}.tar.gz'
-                    sh('mkdir -p $INSTALLATION_PATH')
-                    //sh('mv ${VERSION}_${RELEASE}.tar.gz $INSTALLATION_PATH/')
-                    sh('tar -xvzf ${VERSION}_${RELEASE}.tar.gz -C $INSTALLATION_PATH')
-                }
-            }
-            steps('Install dos2unix') {
-                script {
-                    sh('rpm -ivh $INSTALLATION_PATH/artifacts/dos2unix-6.0.3-7.el7.x86_64.rpm')
-                    sh('chmod 777 $INSTALLATION_PATH/prepare_scripts_for_running.sh')
-                    sh('dos2unix prepare_scripts_for_running.sh')
-                    sh('.$INSTALLATION_PATH/prepare_scripts_for_running.sh')
-                }
-            }
-            steps('Removing Current IC with Backup') {
-                script {
-                    sh('source $INSTALLATION_PATH/updated_scripts/ic_backup.sh')
-                    sh('source $INSTALLATION_PATH/updated_scripts/ic_uninstall.sh')                
-                }
-            }
-            steps('Install JAVA') {
-                script {
-                    sh('source $INSTALLATION_PATH/updated_scripts/java_install.sh')
-                    sh('echo java has been installed and verify the below details')
-                    sh('echo $JAVA_HOME')
-                }
-            }
-            steps('Install ApacheDS') {
-                script {
-                    sh('source $INSTALLATION_PATH/updated_scripts/apacheds_install.sh')
-                    sh('echo ApacheDS is installed and running. ic_admin user created')
-                }
-            }
-            steps('Install OpenSearch') {
-                script {
-                    sh('source $INSTALLATION_PATH/updated_scripts/opensearch_install.sh')
-                    sh('systemctl status opensearch')
-                }
-            }
-            steps('Replacing proper config file based on database type') {
-                //if (env.DB_TYPE == 'oracle') {
-                if (${DB_TYPE} == 'oracle') {
-                sh "sed -i 's/ic.properties/oracle_ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_install.sh"
-                sh "sed -i 's/ic.properties/oracle_ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_config.sh"
-                sh "sed -i 's/ic.properties/oracle_ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_check_depends.sh"
-                sh "sed -i 's/ic.properties/oracle_ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_update_properties_file.sh"
-                } else {
-                sh "sed -i 's/ic.properties/postgres_ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_install.sh"
-                sh "sed -i 's/ic.properties/postgres_ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_config.sh"
-                sh "sed -i 's/ic.properties/postgres_ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_check_depends.sh"
-                sh "sed -i 's/ic.properties/postgres_ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_update_properties_file.sh"
-                }
-            }
-            steps('Install Artemis') {
-                script {
-                    sh('source $INSTALLATION_PATH/updated_scripts/artemismq_install.sh')
-                    sh('source $INSTALLATION_PATH/updated_scripts/broker_creator.sh')
-                    sh('systemctl status cfrmbroker')
-                }
-            }
-            steps('Install InvestigationCenter') {
-                script {
-                    sh('source $INSTALLATION_PATH/updated_scripts/ic_install.sh')
-                    sh('echo IC was installed in the given path')              
-                }
-            }
-            steps('Configure IC') {
-                script {
-                    sh('source $INSTALLATION_PATH/updated_scripts/ic_config.sh')
-                    sh('echo IC configuration files updated')
-                    sh('.$INSTALLATION_PATH/updated_scripts/ic_check_depends.sh')     
-                }
-            }
-            steps('Replacing the string with InvestigationCenter.xml and application.properties') {
-                script {
-                    sh('sed '/com.intellinx.tomcat.ReauthenticatedFormAuthenticator/d' $IC_FOLDER/Appserver/conf/Catalina/localhost/InvestigationCenter.xml')
-                    sh('sed '$d' $IC_FOLDER/Appserver/conf/Catalina/localhost/InvestigationCenter.xml')
-                    sh('echo '$SED_VAR' >> $IC_FOLDER/Appserver/conf/Catalina/localhost/InvestigationCenter.xml')
-                    //sh("sed -i 's/127.0.0.1/$HOST_NAME/g' $IC_FOLDER/Appserver/conf/Catalina/localhost/InvestigationCenter.xml")
-                    sh("sed -i 's/localhost/$HOST_NAME/g' $IC_FOLDER/Appserver/conf/Catalina/localhost/InvestigationCenter.xml")
-                    sh("sed -i 's/#$SED_VAR1/$SED_VAR1/g' $IC_FOLDER/conf/application.properties")
-                    sh("sed -i 's/127.0.0.1/$HOST_NAME/g' $IC_FOLDER/conf/application.properties")
-                }
-            }
-            steps('Switch user') {
-                script {
-                    sh('su cfrm')
-                    sh('/opt/ic/_manager.sh start')
-                }
-            }
-            steps('allow cfrm user to start and stop the service') {
-                script {
-                    sh('sudo .$INSTALLATION_PATH/updated_scripts/allow_user_handle_services.sh')
-                }
-            }
-        }
-        stage('Exctracting and excluding custom config properties file') {
             steps{
                 script {
-                    unstash '${VERSION}_${RELEASE}.tar.gz'
-                    sh("rm -rf ${VERSION}_${RELEASE}.tar.gz")
-                    //if (env.DB_TYPE == 'oracle') {
-                    if (${DB_TYPE} == 'oracle') {
-                    sh "sed -i 's/oracle_ic.properties/ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_install.sh"
-                    sh "sed -i 's/oracle_ic.properties/ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_config.sh"
-                    sh "sed -i 's/oracle_ic.properties/ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_check_depends.sh"
-                    sh "sed -i 's/oracle_ic.properties/ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_update_properties_file.sh"
+                    echo "Testing activity step 3"                
+                    }
+            }
+            steps{
+                script {
+                    echo "Testing activity step 4"
+                }
+            }
+        }
+        stage('Exctracting and excluding') {
+            steps{
+                script {
+                    if (1 == 1) {
+                    echo "Exctracting and excluding is 1"
                     } else {
-                    sh "sed -i 's/postgres_ic.properties/ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_install.sh"
-                    sh "sed -i 's/postgres_ic.properties/ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_config.sh"
-                    sh "sed -i 's/postgres_ic.properties/ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_check_depends.sh"
-                    sh "sed -i 's/postgres_ic.properties/ic.properties/g' $INSTALLATION_PATH/updated_scripts/ic_update_properties_file.sh"                
+                    echo "Exctracting and excluding is not 1"                    
                     }
                 }
             }
-            steps('Package after testing') {
+            steps{
                 script {
-                    sh("sed -i 's/{{VERSION}}/${params.VERSION}/g' docs/package_installation_manual.txt && sed -i 's/{{RELEASE}}/${params.RELEASE}/g' docs/package_installation_manual.txt")
-                    sh("tar --exclude='.git' --exclude='artifacts@tmp' --exclude='devops-cfrm-download' --exclude='Jenkinsfile' --exclude='versions_to_build_numbers.yaml' --exclude='artifacts.yaml' --exclude='configuration/install/oracle_ic.properties' --exclude='configuration/install/postgres_ic.properties' -zcvf ${VERSION}_${RELEASE}.tar.gz *")
-                }
-            }
-        }
-
-    post{
-        success {
-            script{
-                sh("mv ${VERSION}_${RELEASE}.tar.gz ${VERSION}-${RELEASE}-${DB_TYPE}_${RHEL_VER}.tar.gz")
-                archiveArtifacts(artifacts: "${VERSION}-${RELEASE}-${DB_TYPE}_${RHEL_VER}.tar.gz")
-                currentBuild.displayName  = "#${env.BUILD_NUMBER}-${VERSION}-${RELEASE}-${DB_TYPE}_${RHEL_VER}"
+                    echo "Exctracting and excluding is 2"
                 }
             }
         }
     }
-        cleanup {
+    post{
+        success {
             script{
-                if (params.CLEAN_WORKSPACE_AFTER_BUILD) {
-                cleanWs()
-                }
+                echo "Post success 1"
+            }
+        }
+    }
+    cleanup {
+        script{
+            if (1 == 1) {
+                echo "Cleanup 1"
             }
         }
     }
 }
+
