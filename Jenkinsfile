@@ -64,22 +64,7 @@ pipeline {
                     echo "Testing activity step 1"
                 }
             }
-            steps {
-                script {
-                    echo "Testing activity step 2"                
-                    }
-            }
-            steps {
-                script {
-                    echo "Testing activity step 3"                
-                    }
-            }
-            steps {
-                script {
-                    echo "Testing activity step 4"
-                }
-            }
-        }
+         }
         stage('Exctracting and excluding') {
             steps {
                 script {
