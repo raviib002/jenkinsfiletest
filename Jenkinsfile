@@ -2,9 +2,19 @@ pipeline {
     agent none
     stages {
         stage('Build') {
-            agent any
+            agent { 
+                label 'slave1'
+            }
             steps {
-                echo "Build 11111"
+                script {
+                        if(1 == 1){
+                        echo "read config file is 1"    
+                        }
+                        else
+                        {
+                        echo "read config file is not 1"
+                    }
+                }
             }
         }
         stage('Test on slave1') {
@@ -12,7 +22,16 @@ pipeline {
                 label 'slave1'
             }
             steps {
-                echo "Build 22222"
+                script {
+                    if (2 == 2)
+                    {
+                    echo "Download Artifacts is 2"
+                    }
+                    else if (3 == 3)
+                    {
+                    echo "Download Artifacts is 3"
+                    }
+                }
             }
             post {
                 always {
@@ -25,7 +44,16 @@ pipeline {
                 label 'slave2'
             }
             steps {
-                echo "build 444444"
+                script {
+                    if (2 == 2)
+                    {
+                    echo "Download Artifacts is 2"
+                    }
+                    else if (3 == 3)
+                    {
+                    echo "Download Artifacts is 3"
+                    }
+                }
             }
             post {
                 always {
