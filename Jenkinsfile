@@ -81,9 +81,4 @@ pipeline {
             }
         }
     }
-    cleanup {
-        script{
-            echo "Cleanup 1"
-        }
-    }
 }
