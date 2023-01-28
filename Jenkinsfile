@@ -79,7 +79,7 @@ pipeline {
             }
         }
         stage('Post success') {
-            agent { label('slave1 || slave2') }
+            agent { label 'slave1 && slave2' }
             post{
                 success {
                     script{
