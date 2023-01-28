@@ -1,17 +1,44 @@
+properties([
+    parameters([
+           [
+            $class: 'ParameterSeparatorDefinition',
+            name: 'BUILD_HEADER',
+            sectionHeader: 'Package details'
+           ],
+           string(name: 'VERSION', description: 'Version of IC package (i.e 6.7.0)'),
+           string(name: 'RELEASE', description: 'Release version of IC package (i.e GA)'),
+           [
+            $class: 'ParameterSeparatorDefinition',
+            name: 'BUILD_HEADER',
+            sectionHeader: 'Database Details'
+           ],
+           choice(name: 'RHEL_VER', choices: ['7', '8'], description: 'RHEL Version'),
+           //choice(name: 'RELEASE', choices: ['GA', 'SP1'], description: 'The commercial DB provider'),
+           choice(name: 'DB_TYPE', choices: ['oracle', 'postgres'], description: 'The commercial DB provider'),
+           booleanParam(name: 'DEPLOY_TO_NEXUS', defaultValue: false, description: 'Should the package be released and uploaded to Nexus'),
+           [
+            $class: 'ParameterSeparatorDefinition',
+            name: 'BUILD_HEADER',
+            sectionHeader: 'Cleanup Parameters'
+           ],
+           booleanParam(name: "CLEAN_WORKSPACE_AFTER_BUILD", defaultValue: true, description: 'Delete workspace after build'),
+       ]
+    )
+])
+
 pipeline {
-//    agent { label 'slave1' }
     agent none
-//    environment {
-//        NEXUS_URL = 'https://nexus.cfrm.dev.local/repository'
-//        NEXUS_CREDS = credentials('nexus-creds')
-//        GIT_CREDS = credentials('CFRMGit-jenkins-svc')
-//        //#########################//
-//        INSTALLATION_PATH = '/home/deployment_scripts'
-//        SED_VAR = '        <Valve className="com.intellinx.authenticators.TenantIdMergedToUserNameValve" landingPage="/" disableProxyCaching="false" /> \n </Context>'
-//        SED_VAR1 = 'cloud.new_user.concatenate_tenant_automatically=true'
-//        IC_FOLDER = '/opt/ic'
-//        HOST_NAME = 'IL02VLDEVOPS5001.cfrm.dev.local'
-//    }
+    environment {
+        NEXUS_URL = 'https://nexus.cfrm.dev.local/repository'
+        NEXUS_CREDS = credentials('nexus-creds')
+        GIT_CREDS = credentials('CFRMGit-jenkins-svc')
+        //#########################//
+        INSTALLATION_PATH = '/home/deployment_scripts'
+        SED_VAR = '        <Valve className="com.intellinx.authenticators.TenantIdMergedToUserNameValve" landingPage="/" disableProxyCaching="false" /> \n </Context>'
+        SED_VAR1 = 'cloud.new_user.concatenate_tenant_automatically=true'
+        IC_FOLDER = '/opt/ic'
+        HOST_NAME = 'IL02VLDEVOPS5001.cfrm.dev.local'
+    }
 
     stages {
         stage('Read Config File') {
