@@ -83,9 +83,7 @@ pipeline {
     }
     cleanup {
         script{
-            if (1 == 1) {
-                echo "Cleanup 1"
-            }
+            echo "Cleanup 1"
         }
     }
 }
