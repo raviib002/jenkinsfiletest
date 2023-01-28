@@ -14,23 +14,22 @@ pipeline {
     }
 
     stages {
-        agent { 
-            label 'slave1'
-            }
         stage('Read Config File') {
+            agent { label 'slave1' }
             steps{
                 script {
-                        if(1 == 1){
-                        echo "read config file is 1"    
-                        }
-                        else
-                        {
-                        echo "read config file is not 1"
+                    if(1 == 1){
+                    echo "read config file is 1"    
+                    }
+                    else
+                    {
+                    echo "read config file is not 1"
                     }
                 }
             }
         }
         stage('Download Artifacts') {
+            agent { label 'slave1' }
             steps{
                 script {
                     if (2 == 2)
@@ -43,9 +42,9 @@ pipeline {
                     }
                 }
             }
-        }
-        
+        }       
         stage('Generate DB Scripts') {
+            agent { label 'slave1' }
             steps{
                 script {
                     if (4 == 4)
@@ -56,6 +55,7 @@ pipeline {
             }
         }
         stage('Package') {
+            agent { label 'slave1' }            
             steps{
                 script {
                     echo "Package is 5"
@@ -63,9 +63,7 @@ pipeline {
             }
         }
         stage('Testing activity') {
-        agent { 
-            label 'slave2'
-            }
+            agent { label 'slave2' }
             steps{
                 script {
                     echo "Testing activity step 1"
@@ -73,18 +71,31 @@ pipeline {
             }
         }
         stage('Exctracting and excluding') {
+            agent { label 'slave2' }
             steps{
                 script {
                     echo "Exctracting and excluding is not 1"                    
                 }
             }
         }
-    }
-    post{
-        success {
-            script{
-                echo "Post success 1"
+        stage('Post success') {
+            agent { label('slave1 || slave2') }
+            post{
+                success {
+                    script{
+                        echo "Post success 1"
+                    }
+                }
             }
         }
     }
 }
+
+//    post{
+//        success {
+//            script{
+//                echo "Post success 1"
+//            }
+//        }
+//    }
+
