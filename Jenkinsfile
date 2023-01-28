@@ -39,14 +39,14 @@ pipeline {
                     {
                     echo "Download Artifacts is 1 and extracting the tar11 file"
                     sh("mkdir abcd1234")
-                    sh("mv test1111.tar.gz abcd1234/")
+                    //sh("mv test1111.tar.gz abcd1234/")
                     sh("tar -xvzf test1111.tar.gz -C abcd1234")
                     }
                     else
                     {
                     echo "Download Artifacts is not 1 and extracting the tar22 file"
                     sh("mkdir wxyz6789")
-                    sh("mv test2222.tar.gz wxyz6789/")
+                    //sh("mv test2222.tar.gz wxyz6789/")
                     sh("tar -xvzf test2222.tar.gz  -C wxyz6789")
                     }
                 }
