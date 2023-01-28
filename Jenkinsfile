@@ -1,5 +1,5 @@
 pipeline {
-    //agent { label 'slave1' }
+//    agent { label 'slave1' }
     agent none
 //    environment {
 //        NEXUS_URL = 'https://nexus.cfrm.dev.local/repository'
@@ -15,9 +15,7 @@ pipeline {
 
     stages {
         stage('Read Config File') {
-            agent { 
-                label 'slave1' 
-            }
+            agent { label 'slave1' }
             steps{
                 script {
                     if(1 == 1){
@@ -31,9 +29,7 @@ pipeline {
             }
         }
         stage('Download Artifacts') {
-            agent { 
-                label 'slave1' 
-            }
+            agent { label 'slave1' }
             steps{
                 script {
                     if (2 == 2)
@@ -48,9 +44,7 @@ pipeline {
             }
         }       
         stage('Generate DB Scripts') {
-            agent { 
-                label 'slave1' 
-            }
+            agent { label 'slave1' }
             steps{
                 script {
                     if (4 == 4)
@@ -61,9 +55,7 @@ pipeline {
             }
         }
         stage('Package') {
-            agent { 
-                label 'slave1' 
-            }            
+            agent { label 'slave1' }            
             steps{
                 script {
                     echo "Package is 5"
@@ -71,9 +63,7 @@ pipeline {
             }
         }
         stage('Testing activity') {
-            agent { 
-                label 'slave2' 
-            }
+            agent { label 'slave2' }
             steps{
                 script {
                     echo "Testing activity step 1"
@@ -81,9 +71,7 @@ pipeline {
             }
         }
         stage('Exctracting and excluding') {
-            agent { 
-                label 'slave2' 
-            }
+            agent { label 'slave2' }
             steps{
                 script {
                     echo "Exctracting and excluding is not 1"                    
