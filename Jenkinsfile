@@ -80,6 +80,7 @@ pipeline {
         }
         stage('Post success slave1') {
             agent { label 'slave1' }
+            steps{
             post{
                 success {
                     script{
@@ -87,15 +88,18 @@ pipeline {
                     }
                 }
             }
+            }
         }
         stage('Post success slave2') {
             agent { label 'slave2' }
+            steps{
             post{
                 success {
                     script{
                         echo "Post success slave2"
                     }
                 }
+            }
             }
         }
     }
