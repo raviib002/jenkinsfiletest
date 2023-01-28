@@ -78,38 +78,5 @@ pipeline {
                 }
             }
         }
-        stage('Post success slave1') {
-            agent { label 'slave1' }
-            steps{
-            post{
-                success {
-                    script{
-                        echo "Post success slave1"
-                    }
-                }
-            }
-            }
-        }
-        stage('Post success slave2') {
-            agent { label 'slave2' }
-            steps{
-            post{
-                success {
-                    script{
-                        echo "Post success slave2"
-                    }
-                }
-            }
-            }
-        }
     }
 }
-
-//    post{
-//        success {
-//            script{
-//                echo "Post success 1"
-//            }
-//        }
-//    }
-
