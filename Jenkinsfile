@@ -1,21 +1,23 @@
 pipeline {
     //agent { label 'slave1' }
     agent none
-    environment {
-        NEXUS_URL = 'https://nexus.cfrm.dev.local/repository'
-        NEXUS_CREDS = credentials('nexus-creds')
-        GIT_CREDS = credentials('CFRMGit-jenkins-svc')
-        //#########################//
-        INSTALLATION_PATH = '/home/deployment_scripts'
-        SED_VAR = '        <Valve className="com.intellinx.authenticators.TenantIdMergedToUserNameValve" landingPage="/" disableProxyCaching="false" /> \n </Context>'
-        SED_VAR1 = 'cloud.new_user.concatenate_tenant_automatically=true'
-        IC_FOLDER = '/opt/ic'
-        HOST_NAME = 'IL02VLDEVOPS5001.cfrm.dev.local'
-    }
+//    environment {
+//        NEXUS_URL = 'https://nexus.cfrm.dev.local/repository'
+//        NEXUS_CREDS = credentials('nexus-creds')
+//        GIT_CREDS = credentials('CFRMGit-jenkins-svc')
+//        //#########################//
+//        INSTALLATION_PATH = '/home/deployment_scripts'
+//        SED_VAR = '        <Valve className="com.intellinx.authenticators.TenantIdMergedToUserNameValve" landingPage="/" disableProxyCaching="false" /> \n </Context>'
+//        SED_VAR1 = 'cloud.new_user.concatenate_tenant_automatically=true'
+//        IC_FOLDER = '/opt/ic'
+//        HOST_NAME = 'IL02VLDEVOPS5001.cfrm.dev.local'
+//    }
 
     stages {
         stage('Read Config File') {
-            agent { label 'slave1' }
+            agent { 
+                label 'slave1' 
+            }
             steps{
                 script {
                     if(1 == 1){
@@ -29,7 +31,9 @@ pipeline {
             }
         }
         stage('Download Artifacts') {
-            agent { label 'slave1' }
+            agent { 
+                label 'slave1' 
+            }
             steps{
                 script {
                     if (2 == 2)
@@ -44,7 +48,9 @@ pipeline {
             }
         }       
         stage('Generate DB Scripts') {
-            agent { label 'slave1' }
+            agent { 
+                label 'slave1' 
+            }
             steps{
                 script {
                     if (4 == 4)
@@ -55,7 +61,9 @@ pipeline {
             }
         }
         stage('Package') {
-            agent { label 'slave1' }            
+            agent { 
+                label 'slave1' 
+            }            
             steps{
                 script {
                     echo "Package is 5"
@@ -63,7 +71,9 @@ pipeline {
             }
         }
         stage('Testing activity') {
-            agent { label 'slave2' }
+            agent { 
+                label 'slave2' 
+            }
             steps{
                 script {
                     echo "Testing activity step 1"
@@ -71,10 +81,19 @@ pipeline {
             }
         }
         stage('Exctracting and excluding') {
-            agent { label 'slave2' }
+            agent { 
+                label 'slave2' 
+            }
             steps{
                 script {
                     echo "Exctracting and excluding is not 1"                    
+                }
+            }
+            post{
+                success {
+                    script{
+                        echo "Post success slave1"
+                    }
                 }
             }
         }
