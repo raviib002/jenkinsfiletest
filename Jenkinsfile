@@ -1,5 +1,6 @@
 pipeline {
-    agent { label 'slave1' }
+    //agent { label 'slave1' }
+    agent none
     environment {
         NEXUS_URL = 'https://nexus.cfrm.dev.local/repository'
         NEXUS_CREDS = credentials('nexus-creds')
@@ -14,7 +15,7 @@ pipeline {
 
     stages {
         stage('Read Config File') {
-            steps {
+            steps{
                 script {
                         if(1 == 1){
                         echo "read config file is 1"    
@@ -27,7 +28,7 @@ pipeline {
             }
         }
         stage('Download Artifacts') {
-            steps {
+            steps{
                 script {
                     if (2 == 2)
                     {
@@ -42,7 +43,7 @@ pipeline {
         }
         
         stage('Generate DB Scripts') {
-            steps {
+            steps{
                 script {
                     if (4 == 4)
                     {
@@ -59,8 +60,7 @@ pipeline {
             }
         }
         stage('Testing activity') {
-            agent { label 'slave2' }
-            steps {
+            steps{
                 script {
                     echo "Testing activity step 1"
                 }
