@@ -78,12 +78,22 @@ pipeline {
                 }
             }
         }
-        stage('Post success') {
-            agent { label 'slave1 && slave2' }
+        stage('Post success slave1') {
+            agent { label 'slave1' }
             post{
                 success {
                     script{
-                        echo "Post success 1"
+                        echo "Post success slave1"
+                    }
+                }
+            }
+        }
+        stage('Post success slave2') {
+            agent { label 'slave2' }
+            post{
+                success {
+                    script{
+                        echo "Post success slave2"
                     }
                 }
             }
