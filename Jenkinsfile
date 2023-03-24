@@ -42,6 +42,7 @@ pipeline {
                 success {
                     script{
                         echo "Post success slave1"
+                        cleanWs()
                     }
                 }
             }
@@ -87,6 +88,7 @@ pipeline {
                 success {
                     script{
                         echo "Post success slave2"
+                        cleanWs()
                     }
                 }
             }
