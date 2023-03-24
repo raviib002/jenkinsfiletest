@@ -38,6 +38,13 @@ pipeline {
                     sh("tar -xvzf test2222.tar.gz -C wxyz6789")
                 }
             }
+            post{
+                success {
+                    script{
+                        echo "Post success slave1"
+                    }
+                }
+            }
         }       
         stage('Read Config File in slave2') {
             agent { label 'slave2' }
@@ -79,7 +86,7 @@ pipeline {
             post{
                 success {
                     script{
-                        echo "Post success slave1"
+                        echo "Post success slave2"
                     }
                 }
             }
