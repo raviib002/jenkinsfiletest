@@ -71,6 +71,7 @@ pipeline {
                 success {
                     script{
                         echo "Post success slave1"
+                        cleanWs()
                     }
                 }
             }
